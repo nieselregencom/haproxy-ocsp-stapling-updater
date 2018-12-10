@@ -15,8 +15,6 @@ if [ -z ${OPENSSL_BIN+x} ]; then
     OPENSSL_BIN="openssl"
 fi
 
-SOCAT_BIN="socat"
-
 CERT=""
 VAFILE=""
 HAPROXY_ADMIN_SOCKET_DEFAULT="/run/haproxy/admin.sock"
@@ -279,12 +277,6 @@ if [ $? -ne 0 ]; then
     Error 9 "openssl binary not found; adjust OPENSSL_BIN variable in the script"
 fi
 
-$SOCAT_BIN -V | grep socat &>>$TMP/log
-
-if [ $? -ne 0 ]; then
-    Error 9 "socat binary not found; adjust SOCAT_BIN variable in the script"
-fi
-
 if [ -z "$CERT" ]; then
     Error 9 "certificate not provided (--cert argument)"
 fi
@@ -525,6 +517,7 @@ if [ $DEBUG -eq 0 ]; then
 
     cp $TMP/ocsp.der $CERT.ocsp &>>$TMP/log
 
+
     if [ $? -ne 0 ]; then
         Error 5 "can't update $CERT.ocsp file"
     fi
@@ -551,7 +544,7 @@ if [ $DEBUG -eq 0 ]; then
             # update haproxy via local UNIX socket
             Debug "Updating haproxy."
 
-            echo "set ssl ocsp-response `base64 -w 0 $TMP/ocsp.der`" | $SOCAT_BIN stdio $HAPROXY_ADMIN_SOCKET &>>$TMP/log
+            echo "set ssl ocsp-response `base64 -w 0 $TMP/ocsp.der`"
 
             if [ $? -ne 0 ]; then
                 Error 5 "can't update haproxy ssl ocsp-response using $HAPROXY_ADMIN_SOCKET socket"
